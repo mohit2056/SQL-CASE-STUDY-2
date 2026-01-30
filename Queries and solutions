@@ -1,0 +1,294 @@
+queries.sql
+Simple queries
+
+1. List all the employee details.
+SELECT * FROM Employee;
+
+2. List all the department details.
+SELECT * FROM Department;
+
+3. List all job details.
+SELECT * FROM Job;
+
+4. List all the locations.
+SELECT * FROM Location;
+
+5. First Name, Last Name, Salary, Commission for all employees.
+SELECT First_Name, Last_Name, Salary, Comm FROM Employee;
+
+ 6. Employee ID, Last Name, Department ID with aliases.
+SELECT Employee_ID AS `ID of the Employee`,
+       Last_Name AS `Name of the Employee`,
+       Department_ID AS Dep_id
+FROM Employee;
+
+7. Annual salary of the employees with their names only.
+SELECT First_Name, Last_Name, Salary * 12 AS Annual_Salary
+FROM Employee;
+
+WHERE conditions
+
+1. Details about "Smith".
+SELECT * FROM Employee WHERE Last_Name = 'Smith';
+
+2. Employees working in department 20.
+SELECT * FROM Employee WHERE Department_ID = 20;
+
+3. Employees earning salary between 2000 and 3000.
+SELECT * FROM Employee WHERE Salary BETWEEN 2000 AND 3000;
+
+4. Employees working in department 10 or 20.
+SELECT * FROM Employee WHERE Department_ID IN (10, 20);
+
+5. Employees not working in department 10 or 30.
+SELECT * FROM Employee WHERE Department_ID NOT IN (10, 30);
+
+6. Employees whose last name starts with 'L'.
+SELECT * FROM Employee WHERE Last_Name LIKE 'L%';
+
+7. Last name starts with 'L' and ends with 'E'.
+SELECT * FROM Employee WHERE Last_Name LIKE 'L%E';
+
+8. Last name length is 4 and starts with 'J'.
+SELECT * FROM Employee
+WHERE CHAR_LENGTH(Last_Name) = 4 AND Last_Name LIKE 'J%';
+
+9. Employees in department 30 with salary > 2500.
+SELECT * FROM Employee WHERE Department_ID = 30 AND Salary > 2500;
+
+10. Employees who are not receiving commission.
+SELECT * FROM Employee WHERE Comm IS NULL;
+
+ORDER BY
+
+1. Employee ID and Last Name ascending by Employee ID.
+SELECT Employee_ID, Last_Name FROM Employee ORDER BY Employee_ID ASC;
+
+2. Employee ID and Name in descending order based on salary.
+SELECT Employee_ID, CONCAT(First_Name, ' ', Last_Name) AS Name, Salary
+FROM Employee
+ORDER BY Salary DESC;
+
+3. Employee details ordered by Last Name ascending.
+SELECT * FROM Employee ORDER BY Last_Name ASC;
+
+4. Order by Last Name ascending, then Department ID descending.
+SELECT * FROM Employee ORDER BY Last_Name ASC, Department_ID DESC;
+
+GROUP BY and HAVING
+
+1. Department-wise max, min and avg salary.
+SELECT Department_ID,
+       MAX(Salary) AS Max_Salary,
+       MIN(Salary) AS Min_Salary,
+       ROUND(AVG(Salary),2) AS Avg_Salary
+FROM Employee
+GROUP BY Department_ID;
+
+2. Job-wise max, min and avg salary.
+SELECT Job_ID,
+       MAX(Salary) AS Max_Salary,
+       MIN(Salary) AS Min_Salary,
+       ROUND(AVG(Salary),2) AS Avg_Salary
+FROM Employee
+GROUP BY Job_ID;
+
+-- 3. Number of employees who joined each month.
+SELECT MONTH(Hire_Date) AS Month_Number, COUNT(*) AS Num_Employees
+FROM Employee
+GROUP BY MONTH(Hire_Date)
+ORDER BY Month_Number ASC;
+
+4. Number of employees for each month and year.
+SELECT YEAR(Hire_Date) AS Yr, MONTH(Hire_Date) AS Mth, COUNT(*) AS Num_Employees
+FROM Employee
+GROUP BY YEAR(Hire_Date), MONTH(Hire_Date)
+ORDER BY Yr ASC, Mth ASC;
+
+5. Department ID having at least four employees.
+SELECT Department_ID, COUNT(*) AS Num_Employees
+FROM Employee
+GROUP BY Department_ID
+HAVING COUNT(*) >= 4;
+
+6. How many employees joined in February.
+SELECT COUNT(*) AS Joined_In_February
+FROM Employee
+WHERE MONTH(Hire_Date) = 2;
+
+7. How many employees joined in May or June.
+SELECT COUNT(*) AS Joined_May_June
+FROM Employee
+WHERE MONTH(Hire_Date) IN (5,6);
+
+8. How many employees joined in 1985.
+SELECT COUNT(*) AS Joined_1985
+FROM Employee
+WHERE YEAR(Hire_Date) = 1985;
+
+9. How many employees joined each month in 1985.
+SELECT MONTH(Hire_Date) AS Month_Number, COUNT(*) AS Num_Employees
+FROM Employee
+WHERE YEAR(Hire_Date) = 1985
+GROUP BY MONTH(Hire_Date)
+ORDER BY Month_Number;
+
+10. How many employees joined in April 1985.
+SELECT COUNT(*) AS Joined_April_1985
+FROM Employee
+WHERE YEAR(Hire_Date) = 1985 AND MONTH(Hire_Date) = 4;
+
+11. Department IDs having >= 3 employees joining in April 1985.
+SELECT Department_ID, COUNT(*) AS Num_Employees
+FROM Employee
+WHERE YEAR(Hire_Date) = 1985 AND MONTH(Hire_Date) = 4
+GROUP BY Department_ID
+HAVING COUNT(*) >= 3;
+
+JOINS
+
+1. Employees with their department names.
+SELECT e.Employee_ID, e.First_Name, e.Last_Name, d.Name AS Department
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID;
+
+2. Employees with their designations.
+SELECT e.Employee_ID, e.First_Name, e.Last_Name, j.Designation
+FROM Employee e
+JOIN Job j ON e.Job_ID = j.Job_ID;
+
+3. Employees with department names and city.
+SELECT e.Employee_ID, e.First_Name, e.Last_Name, d.Name AS Department, l.City
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID
+JOIN Location l ON d.Location_ID = l.Location_ID;
+
+4. How many employees are working in different departments.
+SELECT d.Name AS Department, COUNT(e.Employee_ID) AS Num_Employees
+FROM Department d
+LEFT JOIN Employee e ON d.Department_ID = e.Department_ID
+GROUP BY d.Department_ID, d.Name;
+
+5. How many employees are working in the sales department.
+SELECT COUNT(e.Employee_ID) AS Num_In_Sales
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID
+WHERE d.Name = 'Sales';
+
+6. Departments having >= 3 employees; display department names ascending.
+SELECT d.Name AS Department, COUNT(e.Employee_ID) AS Num_Employees
+FROM Department d
+JOIN Employee e ON d.Department_ID = e.Department_ID
+GROUP BY d.Department_ID, d.Name
+HAVING COUNT(e.Employee_ID) >= 3
+ORDER BY d.Name ASC;
+
+-- 7. How many employees are working in 'Dallas'.
+SELECT COUNT(e.Employee_ID) AS Num_In_Dallas
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID
+JOIN Location l ON d.Location_ID = l.Location_ID
+WHERE l.City = 'Dallas';
+
+-- 8. Display all employees in Sales or Operations departments.
+SELECT e.*
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID
+WHERE d.Name IN ('Sales', 'Operations');
+
+-- CONDITIONAL (CASE)
+
+-- 1. Employee details with salary grades.
+SELECT Employee_ID, First_Name, Last_Name, Salary,
+  CASE
+    WHEN Salary < 1000 THEN 'Grade C'
+    WHEN Salary BETWEEN 1000 AND 1999.99 THEN 'Grade B'
+    WHEN Salary BETWEEN 2000 AND 2999.99 THEN 'Grade A'
+    ELSE 'Grade S'
+  END AS Salary_Grade
+FROM Employee;
+
+-- 2. Number of employees grade wise.
+SELECT Salary_Grade, COUNT(*) AS Num_Employees FROM (
+  SELECT Employee_ID,
+    CASE
+      WHEN Salary < 1000 THEN 'Grade C'
+      WHEN Salary BETWEEN 1000 AND 1999.99 THEN 'Grade B'
+      WHEN Salary BETWEEN 2000 AND 2999.99 THEN 'Grade A'
+      ELSE 'Grade S'
+    END AS Salary_Grade
+  FROM Employee
+) t
+GROUP BY Salary_Grade;
+
+-- 3. Salary grades and number of employees between 2000 to 5000.
+SELECT Salary_Grade, COUNT(*) AS Num_Employees FROM (
+  SELECT Employee_ID,
+    CASE
+      WHEN Salary < 2000 THEN 'Below 2000'
+      WHEN Salary BETWEEN 2000 AND 2999.99 THEN '2000-2999'
+      WHEN Salary BETWEEN 3000 AND 4999.99 THEN '3000-4999'
+      ELSE '5000+'
+    END AS Salary_Grade
+  FROM Employee
+  WHERE Salary BETWEEN 2000 AND 5000
+) t
+GROUP BY Salary_Grade;
+
+-- SUBQUERIES
+
+-- 1. Employees who got the maximum salary.
+SELECT * FROM Employee
+WHERE Salary = (SELECT MAX(Salary) FROM Employee);
+
+-- 2. Employees who are working in the sales department.
+SELECT e.*
+FROM Employee e
+WHERE e.Department_ID = (SELECT Department_ID FROM Department WHERE Name = 'Sales' LIMIT 1);
+
+-- 3. Employees who are working as 'Clerk'.
+SELECT e.*
+FROM Employee e
+WHERE e.Job_ID = (SELECT Job_ID FROM Job WHERE Designation = 'Clerk' LIMIT 1);
+
+-- 4. Employees who are living in 'Boston'.
+SELECT e.*
+FROM Employee e
+JOIN Department d ON e.Department_ID = d.Department_ID
+JOIN Location l ON d.Location_ID = l.Location_ID
+WHERE l.City = 'Boston';
+
+-- 5. Number of employees working in the sales department.
+SELECT COUNT(*) AS Num_In_Sales
+FROM Employee
+WHERE Department_ID = (SELECT Department_ID FROM Department WHERE Name = 'Sales' LIMIT 1);
+
+-- 6. Update salaries of employees who are working as clerks by 10%.
+UPDATE Employee
+SET Salary = ROUND(Salary * 1.10, 2)
+WHERE Job_ID = (SELECT Job_ID FROM Job WHERE Designation = 'Clerk' LIMIT 1);
+
+-- 7. Second highest salary drawing employee details.
+SELECT * FROM Employee
+ORDER BY Salary DESC
+LIMIT 1 OFFSET 1;
+
+-- 8. Employees who earn more than every employee in department 30.
+SELECT * FROM Employee
+WHERE Salary > ALL (SELECT Salary FROM Employee WHERE Department_ID = 30);
+
+-- 9. Departments that have no employees.
+SELECT d.Department_ID, d.Name
+FROM Department d
+LEFT JOIN Employee e ON d.Department_ID = e.Department_ID
+WHERE e.Employee_ID IS NULL;
+
+-- 10. Employees who earn greater than the average salary for their department.
+SELECT e.*
+FROM Employee e
+JOIN (
+  SELECT Department_ID, AVG(Salary) AS Dept_Avg
+  FROM Employee
+  GROUP BY Department_ID
+) a ON e.Department_ID = a.Department_ID
+WHERE e.Salary > a.Dept_Avg;
