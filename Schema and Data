@@ -1,0 +1,63 @@
+-- LOCATION
+CREATE TABLE Location (
+  Location_ID INT PRIMARY KEY,
+  City VARCHAR(50)
+);
+
+INSERT INTO Location (Location_ID, City) VALUES
+(122, 'New York'),
+(123, 'Dallas'),
+(124, 'Chicago'),
+(167, 'Boston');
+
+-- DEPARTMENT
+CREATE TABLE Department (
+  Department_ID INT PRIMARY KEY,
+  Name VARCHAR(50),
+  Location_ID INT,
+  FOREIGN KEY (Location_ID) REFERENCES Location(Location_ID)
+);
+
+INSERT INTO Department (Department_ID, Name, Location_ID) VALUES
+(10, 'Accounting', 122),
+(20, 'Sales', 124),
+(30, 'Research', 123),
+(40, 'Operations', 167);
+
+-- JOB
+CREATE TABLE Job (
+  Job_ID INT PRIMARY KEY,
+  Designation VARCHAR(50)
+);
+
+INSERT INTO Job (Job_ID, Designation) VALUES
+(667, 'Clerk'),
+(668, 'Staff'),
+(669, 'Analyst'),
+(670, 'Sales Person'),
+(671, 'Manager'),
+(672, 'President');
+
+-- EMPLOYEE
+CREATE TABLE Employee (
+  Employee_ID INT PRIMARY KEY,
+  Last_Name VARCHAR(50),
+  First_Name VARCHAR(50),
+  Middle_Name CHAR(1),
+  Job_ID INT,
+  Manager_ID INT,
+  Hire_Date DATE,
+  Salary DECIMAL(10,2),
+  Comm DECIMAL(10,2),
+  Department_ID INT,
+  FOREIGN KEY (Job_ID) REFERENCES Job(Job_ID),
+  FOREIGN KEY (Department_ID) REFERENCES Department(Department_ID)
+);
+
+INSERT INTO Employee (Employee_ID, Last_Name, First_Name, Middle_Name, Job_ID, Manager_ID, Hire_Date, Salary, Comm, Department_ID) VALUES
+(7369, 'Smith', 'John', 'Q', 667, NULL, '1984-12-17', 800.00, NULL, 20),
+(7499, 'Allen', 'Kevin', 'J', 670, NULL, '1985-02-20', 1600.00, 300.00, 30),
+(755,  'Doyle', 'Jean', 'K', 671, NULL, '1985-04-04', 2850.00, NULL, 30),
+(756,  'Dennis','Lynn','S', 671, NULL, '1985-05-15', 2750.00, NULL, 30),
+(757,  'Baker', 'Leslie','D', 671, NULL, '1985-06-10', 2200.00, NULL, 40),
+(7521, 'Wark',  'Cynthia','D', 670, NULL, '1985-02-22', 1250.00, 50.00, 30);
